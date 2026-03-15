@@ -1,3 +1,5 @@
+# Код реализует сервис Logbroker на FastAPI: принимает логи через POST /write_log, сохраняет их в персистентный буфер и отправляет батчами в ClickHouse.
+
 import asyncio
 import os
 from pathlib import Path
