@@ -41,35 +41,37 @@ clickhouse_private_ip — приватный IP ClickHouse.
 + Развёртывает `nginx‑ВМ` (устанавливает nginx, создаёт конфиг `logbroker.conf`, включает маршруты `/nginx_health` и проксирование запросов на logbroker).
 
 ## 3. Проверка инфраструктуры
-- Выполните `terraform output` для получения IP‑адресов.
-- Проверьте nginx:
+1) Выполните `terraform output` для получения IP‑адресов.
+2) Проверьте nginx:
 ``` bash
 curl http://$(terraform output -raw nginx_public_ip)/nginx_health
 curl http://$(terraform output -raw nginx_public_ip)/health
 ```
-- Проверьте ClickHouse:
-+ Подключитесь по SSH:
+3) Проверьте ClickHouse:
+- Подключитесь по SSH:
 ssh -J ubuntu@$(terraform output -raw nat_instance_public_ip) ubuntu@$(terraform output -raw clickhouse_private_ip)
-+ Выполните:
--curl http://localhost:8123/ping
--sudo docker exec -it clickhouse-server clickhouse-client -q "SHOW TABLES FROM default"
+- Выполните:
+  + curl http://localhost:8123/ping
+  + sudo docker exec -it clickhouse-server clickhouse-client -q "SHOW TABLES FROM default"
 (должна быть таблица logs).
 
 ## 4. End‑to‑end проверка логов
-Отправьте логи с локальной машины:
+1) Отправьте логи с локальной машины:
+``` bash
 curl -X POST "http://$(terraform output -raw nginx_public_ip)/write_log" -d $'first log via nginx\nsecond log via nginx'
-Проверьте логи в ClickHouse:
-Подключитесь по SSH (см. пункт 3).
-Выполните:
-sudo docker exec -it clickhouse-server clickhouse-client -q "SELECT count(), any(message) FROM default.logs"
-Ожидаемый результат: count() > 0, в сообщении видна одна из отправленных строк.
+```
+2) Проверьте логи в ClickHouse:
+- Подключитесь по SSH (см. пункт 3).
+  Выполните:
+  + sudo docker exec -it clickhouse-server clickhouse-client -q "SELECT count(), any(message) FROM default.logs"
+  + Ожидаемый результат: count() > 0, в сообщении видна одна из отправленных строк.
 
 ## 5. Гарантия доставки логов
 Logbroker:
 
-принимает запрос /write_log;
-пишет строки логов в файл (/var/lib/logbroker/buffer.log) и выполняет fsync;
-отвечает 200 OK только после записи в буфер;
-раз в секунду читает буфер и отправляет данные в ClickHouse через HTTP API;
-при успешной вставке очищает файл буфера;
-при остановке сервиса выполняет финальный flush.
+- принимает запрос /write_log;
+- пишет строки логов в файл (/var/lib/logbroker/buffer.log) и выполняет fsync;
+- отвечает 200 OK только после записи в буфер;
+- раз в секунду читает буфер и отправляет данные в ClickHouse через HTTP API;
+- при успешной вставке очищает файл буфера;
+- при остановке сервиса выполняет финальный flush.
