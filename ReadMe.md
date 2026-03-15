@@ -1,4 +1,5 @@
 # Cloud Logbroker: инструкция по развёртыванию
+
 ## Цель: развернуть logbroker‑сервис в Yandex Cloud с использованием Terraform (VPC, NAT, 2 backend‑ВМ с logbroker, ClickHouse, nginx).
 
 ## Предварительные требования
