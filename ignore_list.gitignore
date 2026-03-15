@@ -1,0 +1,32 @@
+# Файл содержит список игнорируемых файлов и директорий для системы контроля версий (например, .git): 
+# исключает кэши чтобы не включать их в репозиторий.
+
+.# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Python, 
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+# Виртуальные окружения, 
+venv/
+logbroker/venv/
+.venv/
+
+# Временные файлы Terraform, 
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
+*.tfstate
+*.tfstate.*
+
+# Логи и локальные данные
+logbroker/*.log
+/var/lib/logbroker/
