@@ -65,13 +65,3 @@ curl -X POST "http://$(terraform output -raw nginx_public_ip)/write_log" -d $'fi
   Выполните:
   + sudo docker exec -it clickhouse-server clickhouse-client -q "SELECT count(), any(message) FROM default.logs"
   + Ожидаемый результат: count() > 0, в сообщении видна одна из отправленных строк.
-
-## 5. Гарантия доставки логов
-Logbroker:
-
-- принимает запрос /write_log;
-- пишет строки логов в файл (/var/lib/logbroker/buffer.log) и выполняет fsync;
-- отвечает 200 OK только после записи в буфер;
-- раз в секунду читает буфер и отправляет данные в ClickHouse через HTTP API;
-- при успешной вставке очищает файл буфера;
-- при остановке сервиса выполняет финальный flush.
